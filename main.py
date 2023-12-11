@@ -21,7 +21,8 @@ class ContactModel:
                 id INTEGER PRIMARY KEY,
                 name TEXT,
                 type TEXT,
-                biome TEXT)
+                biome TEXT,
+                description TEXT)
         ''')
         self._db.commit()
 
@@ -30,8 +31,8 @@ class ContactModel:
 
     def add(self, contact):
         self._db.cursor().execute('''
-            INSERT INTO levels(name, type, biome)
-            VALUES(:name, :type, :biome)''',
+            INSERT INTO levels(name, type, biome, notes)
+            VALUES(:name, :type, :biome, :notes)''',
                                   contact)
         self._db.commit()
 
@@ -45,7 +46,7 @@ class ContactModel:
 
     def get_current_contact(self):
         if self.current_id is None:
-            return {"name": "", "type": "", "biome": ""}
+            return {"name": "", "type": "", "biome": "", "notes": ""}
         else:
             return self.get_contact(self.current_id)
 
@@ -54,7 +55,7 @@ class ContactModel:
             self.add(details)
         else:
             self._db.cursor().execute('''
-                UPDATE levels SET name=:name, type=:type, biome=:biome WHERE id=:id''',
+                UPDATE levels SET name=:name, type=:type, biome=:biome, notes=:notes WHERE id=:id''',
                                       details)
             self._db.commit()
 
@@ -144,6 +145,8 @@ class ContactView(Frame):
         layout.add_widget(Text("Name:", "name"))
         layout.add_widget(Text("Type:", "type"))
         layout.add_widget(Text("Biome:", "biome"))
+        layout.add_widget(TextBox(
+            Widget.FILL_FRAME, "Notes:", "notes", as_string=True, line_wrap=True))
         layout2 = Layout([1, 1, 1, 1])
         self.add_layout(layout2)
         layout2.add_widget(Button("OK", self._ok), 0)
